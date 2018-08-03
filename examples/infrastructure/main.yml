@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: Dummy Python Lambda
+
+Parameters:
+  # Tags
+  Environment:
+    Type: String
+  Brand:
+    Type: String
+  Application:
+    Type: String
+  Owner:
+    Type: String
+  # Params
+  LogRetentionInDays:
+    Type: Number
+    Default: 7
+  LogLevel:
+    Type: String
+    Default: info
+
+Resources:
+
+  Lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub ${Environment}-${Brand}-${Application}
+      Role: !GetAtt LambdaRole.Arn
+      Runtime: python3.6
+      Handler: main.handler
+      MemorySize: 256
+      Timeout: 10
+      Code: ../code.zip
+      Environment:
+        Variables:
+          LOG_LEVEL: !Ref LogLevel
+      Tags:
+        - Key: Name
+          Value: !Sub "${Environment}-${Brand}-${Application}"
+        - Key: BusinessUnit
+          Value: !Ref Brand
+        - Key: Application
+          Value: !Ref Application
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Owner
+          Value: !Ref Owner
+
+  LambdaLogs:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${Lambda}
+      RetentionInDays: !Ref LogRetentionInDays
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${Environment}-${Brand}-${Application}
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Action: sts:AssumeRole
+          Principal:
+            Service: lambda.amazonaws.com
+      Policies:
+        - PolicyName: !Sub ${Environment}-${Brand}-${Application}
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+              Resource: "*"
+
+Outputs:
+  Lambda:
+    Description: Lambda
+    Value: !Ref Lambda
+  LambdaArn:
+    Description: Lambda Arn
+    Value: !GetAtt Lambda.Arn

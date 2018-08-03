@@ -1,0 +1,17 @@
+{
+  "Parameters" : {
+    "Environment" : "test",
+    "Brand" : "dhi",
+    "Application" : "dummy",
+    "Owner" : "cpe",
+    "LogRetentionInDays" : 1,
+    "LogLevel" : "debug"
+  },
+  "Tags" : {
+    "Name": "test-dhi-dummy",
+    "BusinessUnit": "dhi",
+    "Application": "dummy",
+    "Environment": "test",
+    "Owner": "cpe"
+  }
+}
