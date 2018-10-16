@@ -37,7 +37,8 @@ setup(
     },
     packages=find_packages(exclude=['code', 'infrastructure', 'tests']),
     install_requires=[
-        'awscli >= 1.15'
+        'awscli >= 1.15',
+        'botocore >= 1.11.4'
     ],
     python_requires='>=3',
     extras_require={
