@@ -61,6 +61,7 @@ def package_template(session, args):
             False
         )
         template = Template(args.template, os.getcwd(), s3_uploader)
+        print(template_has_resources_to_export(template))
         exported_template = template.export()
         exported_template_yaml = yaml_dump(exported_template)
     except exceptions.ExportFailedError as ex:
@@ -72,6 +73,16 @@ def package_template(session, args):
     logging.info(exported_template_yaml)
     print('Done.')
     return exported_template_yaml
+
+
+def template_has_resources_to_export(template):
+    if "Resources" in template.template_dict:
+        for _, resource in template.template_dict["Resources"].items():
+            resource_type = resource.get("Type", None)
+            for exporter_class in template.resources_to_export:
+                if exporter_class.RESOURCE_TYPE == resource_type:
+                    return True
+    return False
 
 
 def deploy_template(session, args, packaged_yaml):
