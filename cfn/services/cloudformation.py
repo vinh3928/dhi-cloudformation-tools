@@ -56,7 +56,7 @@ def package_template(session, args):
             client,
             args.s3_bucket,
             session.get_scoped_config()['region'],
-            conventions.generate_name(config['Parameters']),
+            conventions.generate_name(config['Parameters']), # prefix takes precedence
             args.kms_key_id,
             False
         )
@@ -66,6 +66,8 @@ def package_template(session, args):
     except exceptions.ExportFailedError as ex:
         logging.error(ex)
         sys.exit(1)
+
+    # write to file if has output
 
     logging.info(exported_template_yaml)
     print('Done.')

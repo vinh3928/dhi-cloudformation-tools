@@ -32,9 +32,19 @@ def add_subparser(subparsers):
         help='The name of the S3 bucket where this command uploads the artifacts that are referenced in your template.'
     )
     parser.add_argument(
+        '--s3-prefix',
+        '-pf',
+        help='A prefix name that the command adds to the artifact\'s name when it uploads them to the S3 bucket.'
+    )
+    parser.add_argument(
         '--kms-key-id',
         '-k',
         help='The ID of an AWS KMS key that the command uses to encrypt artifacts that are at rest in the S3 bucket.'
+    )
+    parser.add_argument(
+        '--output-template-file',
+        '-o',
+        help='The path to the file where the command writes the output AWS CloudFormation template.'
     )
     parser.set_defaults(subcommand=main)
 
