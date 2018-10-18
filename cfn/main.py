@@ -1,7 +1,7 @@
 import logging
 import argparse
 from . import version
-from .subcommands import validate, deploy
+from .subcommands import validate, package, deploy
 
 
 def init_parser():
@@ -22,6 +22,7 @@ def init_parser():
     )
     subparsers = parser.add_subparsers(help='available subcommands')
     validate.add_subparser(subparsers)
+    package.add_subparser(subparsers)
     deploy.add_subparser(subparsers)
     return parser
 

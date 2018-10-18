@@ -3,7 +3,7 @@ import logging
 import json
 
 
-def get_json(filepath):
+def read_json(filepath):
 
     try:
         with open(filepath) as file:
@@ -18,7 +18,7 @@ def get_json(filepath):
     return content
 
 
-def get_content(filepath):
+def read_content(filepath):
 
     try:
         with open(filepath, "r") as file:
@@ -28,6 +28,13 @@ def get_content(filepath):
         sys.exit(1)
 
     return content
+
+
+def write_content(filepath, content):
+
+    with open(filepath, "w") as file:
+        file.write(content)
+
 
 def get_confirmation():
     response = input("Continue? (y/n)\n")

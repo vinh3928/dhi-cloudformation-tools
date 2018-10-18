@@ -62,7 +62,9 @@ def main(args):
         args
     )
 
-    package_template(
+    packaged_yaml = package_template(
         session,
         args
     )
+
+    utils.write_content(args.output_template_file or 'packaged.yml', packaged_yaml)

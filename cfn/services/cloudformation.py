@@ -14,8 +14,8 @@ def validate_template(session, args):
 
     print('Validating...')
     client = session.create_client('cloudformation')
-    template_body = utils.get_content(args.template)
-    config = utils.get_json(args.config)
+    template_body = utils.read_content(args.template)
+    config = utils.read_json(args.config)
 
     if not validate_template_config(config):
         logging.error('Invalid template config.')
@@ -49,7 +49,7 @@ def package_template(session, args):
 
     print('Packaging...')
     client = session.create_client('s3')
-    config = utils.get_json(args.config)
+    config = utils.read_json(args.config)
 
     try:
         s3_uploader = S3Uploader(
@@ -61,14 +61,12 @@ def package_template(session, args):
             False
         )
         template = Template(args.template, os.getcwd(), s3_uploader)
-        print(template_has_resources_to_export(template))
+        # print(template_has_resources_to_export(template))
         exported_template = template.export()
         exported_template_yaml = yaml_dump(exported_template)
     except exceptions.ExportFailedError as ex:
         logging.error(ex)
         sys.exit(1)
-
-    # write to file if has output
 
     logging.info(exported_template_yaml)
     print('Done.')
@@ -89,7 +87,7 @@ def deploy_template(session, args, packaged_yaml):
 
     print('Deploying...')
     client = session.create_client('cloudformation')
-    config = utils.get_json(args.config)
+    config = utils.read_json(args.config)
     stack_name = conventions.generate_name(config['Parameters'])
     deployer = Deployer(client)
     tags = conventions.merge_tags(config.get('Tags', {}), config['Parameters'])
