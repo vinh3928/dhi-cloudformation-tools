@@ -33,6 +33,12 @@ def validate_template(session, args):
     print('The template is valid.')
     return config['Parameters']
 
+def get_config_parameters(args):
+
+    config = utils.read_json(args.config)
+
+    return config['Parameters']
+
 
 def validate_template_config(config):
 
