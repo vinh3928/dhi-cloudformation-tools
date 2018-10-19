@@ -11,7 +11,7 @@ class TestName(unittest.TestCase):
             'Application': 'someApplication',
         }
         # when
-        result = conventions.generate_name(parameters)
+        result = conventions.generate_stack_name(parameters)
         # assertions
         self.assertEqual(result, f"{parameters['Environment']}-{parameters['Brand']}-{parameters['Application']}")
 
