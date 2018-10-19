@@ -50,7 +50,7 @@ def add_subparser(subparsers):
         '--approve',
         '-a',
         action='store_true',
-        help='Approve command execution and bypass manual confirmation',
+        help='Approve command execution and bypass manual confirmation.',
     )
     parser.set_defaults(subcommand=main)
 

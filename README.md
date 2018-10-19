@@ -27,6 +27,24 @@ cfn val -t <main.yml>
 * `--template` - The path where your AWS CloudFormation template is located.
 * `--config` - The path where your AWS CloudFormation template configuration is located.
 
+#### Package
+
+Validates and Packages the specified AWS CloudFormation template by creating and then executing a change set.
+
+```sh
+cfn package --help
+cfn package --template <main.yml> --config <config.json> --s3-bucket <some-bucket>
+cfn pkg -t <main.yml> -c <config.json> -b <some-bucket>
+```
+
+* `--template` - The path where your AWS CloudFormation template is located.
+* `--config` -The path where your AWS CloudFormation template configuration is located.
+* `--s3-bucket` - The name of the S3 bucket where this command uploads the artifacts that are referenced in your template.
+* `--s3-prefix` - A prefix name that the command adds to the artifact's name when it uploads them to the S3 bucket.
+* `--kms-key-id` - The ID of an AWS KMS key that the command uses to encrypt artifacts that are at rest in the S3 bucket.
+* `--output-template-file` - The path to the file where the command writes the output AWS CloudFormation template.
+* `--approve` - Approve command execution and bypass manual confirmation.
+
 #### Deploy
 
 Validates, Packages and Deploys the specified AWS CloudFormation template by creating and then executing a change set.
@@ -40,6 +58,24 @@ cfn dpl -t <main.yml> -c <config.json> -b <some-bucket>
 * `--template` - The path where your AWS CloudFormation template is located.
 * `--config` -The path where your AWS CloudFormation template configuration is located.
 * `--s3-bucket` - The name of the S3 bucket where this command uploads the artifacts that are referenced in your template.
+* `--s3-prefix` - A prefix name that the command adds to the artifact's name when it uploads them to the S3 bucket.
+* `--kms-key-id` - The ID of an AWS KMS key that the command uses to encrypt artifacts that are at rest in the S3 bucket.
+* `--output-template-file` - The path to the file where the command writes the output AWS CloudFormation template.
+* `--approve` - Approve command execution and bypass manual confirmation.
+
+#### Deploy only
+
+Deploys the specified AWS CloudFormation packaged template by creating and then executing a change set.
+
+```sh
+cfn deploy-only --help
+cfn deploy-only --packaged <main.yml> --config <config.json> --approve
+cfn dplo -k <packaged.yml> -c <config.json> -a
+```
+
+* `--packaged` - The path where your AWS CloudFormation packaged template is located.
+* `--config` -The path where your AWS CloudFormation template configuration is located.
+* `--approve` - Approve command execution and bypass manual confirmation.
 
 #### AWS Profile
 ```sh
