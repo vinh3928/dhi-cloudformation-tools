@@ -1,5 +1,4 @@
-from ..utils import aws
-from ..utils import utils
+from ..utils import aws, utils, conventions
 from ..services.cloudformation import validate_template, package_template, deploy_template
 
 
@@ -36,21 +35,30 @@ def add_subparser(subparsers):
         '-k',
         help='The ID of an AWS KMS key that the command uses to encrypt artifacts that are at rest in the S3 bucket.'
     )
+    parser.add_argument(
+        '--approve',
+        '-a',
+        action='store_true',
+        help='Approve command execution and bypass manual confirmation',
+    )
     parser.set_defaults(subcommand=main)
 
 
 def main(args):
 
     session = aws.get_session(args.profile)
+
     aws.display_session_info(session)
 
-    if not args.profile:
-        utils.get_confirmation()
-
-    validate_template(
+    valid_parameters = validate_template(
         session,
         args
     )
+
+    conventions.display_generated_values(valid_parameters)
+
+    if not args.approve:
+        utils.get_confirmation()
 
     packaged_yaml = package_template(
         session,

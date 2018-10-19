@@ -18,7 +18,7 @@ def init_parser():
         '--verbose',
         '-v',
         action='store_true',
-        help='debug mode'
+        help='Verbose mode.'
     )
     subparsers = parser.add_subparsers(help='available subcommands')
     validate.add_subparser(subparsers)

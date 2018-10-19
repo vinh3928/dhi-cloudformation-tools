@@ -12,7 +12,7 @@ from ..utils import utils, conventions
 
 def validate_template(session, args):
 
-    print('Validating...')
+    print('\nValidating...')
     client = session.create_client('cloudformation')
     template_body = utils.read_content(args.template)
     config = utils.read_json(args.config)
@@ -20,7 +20,7 @@ def validate_template(session, args):
     if not validate_template_config(config):
         logging.error('Invalid template config.')
         sys.exit(1)
-    print('The template config is valid.')
+    print('The config is valid.')
 
     try:
         client.validate_template(
@@ -31,6 +31,8 @@ def validate_template(session, args):
         sys.exit(1)
 
     print('The template is valid.')
+    return config['Parameters']
+
 
 def validate_template_config(config):
 
@@ -45,27 +47,31 @@ def validate_template_config(config):
 
     return valid
 
+
 def package_template(session, args):
 
-    print('Packaging...')
+    print('\nPackaging...')
     client = session.create_client('s3')
     config = utils.read_json(args.config)
+    s3_prefix = args.s3_prefix or conventions.generate_stack_name(config['Parameters'])
 
     try:
         s3_uploader = S3Uploader(
             client,
             args.s3_bucket,
             session.get_scoped_config()['region'],
-            conventions.generate_name(config['Parameters']), # prefix takes precedence
+            s3_prefix,
             args.kms_key_id,
             False
         )
         template = Template(args.template, os.getcwd(), s3_uploader)
-        # print(template_has_resources_to_export(template))
         exported_template = template.export()
         exported_template_yaml = yaml_dump(exported_template)
     except exceptions.ExportFailedError as ex:
-        logging.error(ex)
+        if template_has_resources_to_export(template) and not args.s3_bucket:
+            logging.error('The template contains resources to export, please provide an S3 Bucket (--s3-prefix).')
+        else:
+            logging.error(ex)
         sys.exit(1)
 
     logging.info(exported_template_yaml)
@@ -85,10 +91,10 @@ def template_has_resources_to_export(template):
 
 def deploy_template(session, args, packaged_yaml):
 
-    print('Deploying...')
+    print('\nDeploying...')
     client = session.create_client('cloudformation')
     config = utils.read_json(args.config)
-    stack_name = conventions.generate_name(config['Parameters'])
+    stack_name = conventions.generate_stack_name(config['Parameters'])
     deployer = Deployer(client)
     tags = conventions.merge_tags(config.get('Tags', {}), config['Parameters'])
 

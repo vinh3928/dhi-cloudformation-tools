@@ -9,6 +9,7 @@ def get_session(profile):
 
 def display_session_info(session):
     try:
+        print('')
         print('Profile:', session.profile or 'default')
         print('Region:', session.get_scoped_config().get('region', 'n/a'))
         print('AWS Account Number:', session.get_scoped_config().get('aws_account_number', 'n/a'))

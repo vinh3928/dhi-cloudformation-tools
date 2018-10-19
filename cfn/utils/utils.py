@@ -37,6 +37,6 @@ def write_content(filepath, content):
 
 
 def get_confirmation():
-    response = input("Continue? (y/n)\n")
+    response = input("\nContinue? (y/n)\n")
     if response != 'y':
         sys.exit(1)

@@ -1,6 +1,5 @@
-from ..utils import aws
-from ..utils import utils
-from ..services.cloudformation import validate_template, package_template, deploy_template
+from ..utils import aws, utils, conventions
+from ..services.cloudformation import validate_template, package_template
 
 
 def add_subparser(subparsers):
@@ -44,7 +43,14 @@ def add_subparser(subparsers):
     parser.add_argument(
         '--output-template-file',
         '-o',
-        help='The path to the file where the command writes the output AWS CloudFormation template.'
+        help='The path to the file where the command writes the output AWS CloudFormation template.',
+        default='packaged.yml'
+    )
+    parser.add_argument(
+        '--approve',
+        '-a',
+        action='store_true',
+        help='Approve command execution and bypass manual confirmation',
     )
     parser.set_defaults(subcommand=main)
 
@@ -52,19 +58,22 @@ def add_subparser(subparsers):
 def main(args):
 
     session = aws.get_session(args.profile)
+
     aws.display_session_info(session)
 
-    if not args.profile:
-        utils.get_confirmation()
-
-    validate_template(
+    valid_parameters = validate_template(
         session,
         args
     )
+
+    conventions.display_generated_values(valid_parameters)
+
+    if not args.approve:
+        utils.get_confirmation()
 
     packaged_yaml = package_template(
         session,
         args
     )
 
-    utils.write_content(args.output_template_file or 'packaged.yml', packaged_yaml)
+    utils.write_content(args.output_template_file, packaged_yaml)

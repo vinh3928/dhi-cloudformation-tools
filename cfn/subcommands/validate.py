@@ -32,10 +32,8 @@ def add_subparser(subparsers):
 def main(args):
 
     session = aws.get_session(args.profile)
-    aws.display_session_info(session)
 
-    if not args.profile:
-        utils.get_confirmation()
+    aws.display_session_info(session)
 
     validate_template(
         session,
