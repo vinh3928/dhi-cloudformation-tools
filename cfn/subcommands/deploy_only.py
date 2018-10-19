@@ -44,11 +44,13 @@ def main(args):
 
     conventions.display_generated_values(config_parameters)
 
+    packaged_yaml = utils.read_content(args.packaged)
+
     if not args.approve:
         utils.get_confirmation()
 
-    # deploy_template(
-    #     session,
-    #     args,
-    #     packaged_yaml
-    # )
+    deploy_template(
+        session,
+        args,
+        packaged_yaml
+    )
