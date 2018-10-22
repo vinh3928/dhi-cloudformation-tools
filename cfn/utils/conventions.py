@@ -46,6 +46,6 @@ def merge_tag(tags, tag_name, desired_value):
 
     return desired_value
 
-def display_generated_values(parameters):
+def display_generated_values(config):
     print('')
-    print('Stack Name:', generate_stack_name(parameters))
+    print('Stack Name:', generate_stack_name(config['Parameters']))

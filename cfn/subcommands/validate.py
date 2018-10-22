@@ -1,6 +1,5 @@
 from ..utils import aws
-from ..utils import utils
-from ..services.cloudformation import validate_template
+from ..services.cloudformation import validate_template, get_template, get_config
 
 
 def add_subparser(subparsers):
@@ -35,7 +34,11 @@ def main(args):
 
     aws.display_session_info(session)
 
+    template = get_template(args.template)
+    config = get_config(args.config)
+
     validate_template(
         session,
-        args
+        template,
+        config
     )

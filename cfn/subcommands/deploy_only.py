@@ -1,5 +1,5 @@
 from ..utils import aws, utils, conventions
-from ..services.cloudformation import validate_template, package_template, deploy_template, get_config_parameters
+from ..services.cloudformation import deploy_template, get_config
 
 
 def add_subparser(subparsers):
@@ -40,9 +40,9 @@ def main(args):
 
     aws.display_session_info(session)
 
-    config_parameters = get_config_parameters(args)
+    config = get_config(args.config)
 
-    conventions.display_generated_values(config_parameters)
+    conventions.display_generated_values(config)
 
     packaged_yaml = utils.read_content(args.packaged)
 
@@ -51,6 +51,6 @@ def main(args):
 
     deploy_template(
         session,
-        args,
+        config,
         packaged_yaml
     )

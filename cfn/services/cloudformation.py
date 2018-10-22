@@ -10,12 +10,10 @@ from awscli.customizations.cloudformation import exceptions
 from ..utils import utils, conventions
 
 
-def validate_template(session, args):
+def validate_template(session, template, config):
 
     print('\nValidating...')
     client = session.create_client('cloudformation')
-    template_body = utils.read_content(args.template)
-    config = utils.read_json(args.config)
 
     if not validate_template_config(config):
         logging.error('Invalid template config.')
@@ -24,20 +22,23 @@ def validate_template(session, args):
 
     try:
         client.validate_template(
-            TemplateBody=template_body,
+            TemplateBody=template,
         )
     except botocore.exceptions.ClientError as ex:
         logging.error(ex)
         sys.exit(1)
 
     print('The template is valid.')
-    return config['Parameters']
 
-def get_config_parameters(args):
 
-    config = utils.read_json(args.config)
+def get_config(config_filename):
 
-    return config['Parameters']
+    return utils.read_json(config_filename)
+
+
+def get_template(template_filename):
+
+    return utils.read_content(template_filename)
 
 
 def validate_template_config(config):
@@ -95,11 +96,10 @@ def template_has_resources_to_export(template):
     return False
 
 
-def deploy_template(session, args, packaged_yaml):
+def deploy_template(session, config, packaged_yaml):
 
     print('\nDeploying...')
     client = session.create_client('cloudformation')
-    config = utils.read_json(args.config)
     stack_name = conventions.generate_stack_name(config['Parameters'])
     deployer = Deployer(client)
     tags = conventions.merge_tags(config.get('Tags', {}), config['Parameters'])
