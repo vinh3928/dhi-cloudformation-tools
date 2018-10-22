@@ -75,8 +75,8 @@ def package_template(session, args):
         exported_template = template.export()
         exported_template_yaml = yaml_dump(exported_template)
     except exceptions.ExportFailedError as ex:
-        if template_has_resources_to_export(template) and not args.s3_bucket:
-            logging.error('The template contains resources to export, please provide an S3 Bucket (--s3-prefix).')
+        if template_has_resources_to_upload_to_s3(template) and not args.s3_bucket:
+            logging.error('The template contains resources to export, please provide an S3 Bucket (--s3-bucket).')
         else:
             logging.error(ex)
         sys.exit(1)
@@ -86,7 +86,14 @@ def package_template(session, args):
     return exported_template_yaml
 
 
-def template_has_resources_to_export(template):
+def template_has_resources_to_upload_to_s3(template):
+    """
+    This function uses the aws cli provided class attribute 'Template.resources_to_export'
+    that contains a static list of resource types
+    to check if any of the resources in the template need to be uploaded to S3
+    Reference: https://github.com/aws/aws-cli/blob/develop/awscli/customizations/cloudformation/artifact_exporter
+    """
+
     if "Resources" in template.template_dict:
         for _, resource in template.template_dict["Resources"].items():
             resource_type = resource.get("Type", None)
