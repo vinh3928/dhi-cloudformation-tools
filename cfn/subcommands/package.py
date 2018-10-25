@@ -1,12 +1,12 @@
 from ..utils import aws, utils, conventions
-from ..services.cloudformation import validate_template, package_template, deploy_template, get_template, get_config
+from ..services.cloudformation import validate_template, package_template, get_template, get_config
 
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
-        'deploy',
-        aliases=['dpl'],
-        help='Validates, Packages and Deploys the specified AWS CloudFormation template by creating and then executing a change set.'
+        'package',
+        aliases=['pkg'],
+        help='Validates and Packages the specified AWS CloudFormation template.'
     )
     parser.add_argument(
         '--profile',
@@ -50,7 +50,7 @@ def add_subparser(subparsers):
         '--approve',
         '-a',
         action='store_true',
-        help='Approve command execution and bypass manual confirmation',
+        help='Approve command execution and bypass manual confirmation.',
     )
     parser.set_defaults(subcommand=main)
 
@@ -80,8 +80,4 @@ def main(args):
         args
     )
 
-    deploy_template(
-        session,
-        config,
-        packaged_yaml
-    )
+    utils.write_content(args.output_template_file, packaged_yaml)

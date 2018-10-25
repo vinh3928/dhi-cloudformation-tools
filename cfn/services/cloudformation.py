@@ -7,30 +7,39 @@ from awscli.customizations.cloudformation.deployer import Deployer
 from awscli.customizations.s3uploader import S3Uploader
 from awscli.customizations.cloudformation.yamlhelper import yaml_dump
 from awscli.customizations.cloudformation import exceptions
-from ..utils import utils, conventions
+from ..utils import utils, aws, conventions
 
 
-def validate_template(session, args):
+def validate_template(session, template, config):
 
-    print('Validating...')
+    print('\nValidating...')
     client = session.create_client('cloudformation')
-    template_body = utils.get_content(args.template)
-    config = utils.get_json(args.config)
 
     if not validate_template_config(config):
         logging.error('Invalid template config.')
         sys.exit(1)
-    print('The template config is valid.')
+    print('The config is valid.')
 
     try:
         client.validate_template(
-            TemplateBody=template_body,
+            TemplateBody=template,
         )
     except botocore.exceptions.ClientError as ex:
         logging.error(ex)
         sys.exit(1)
 
     print('The template is valid.')
+
+
+def get_config(config_filename):
+
+    return utils.read_json(config_filename)
+
+
+def get_template(template_filename):
+
+    return utils.read_content(template_filename)
+
 
 def validate_template_config(config):
 
@@ -45,18 +54,20 @@ def validate_template_config(config):
 
     return valid
 
+
 def package_template(session, args):
 
-    print('Packaging...')
+    print('\nPackaging...')
     client = session.create_client('s3')
-    config = utils.get_json(args.config)
+    config = utils.read_json(args.config)
+    s3_prefix = args.s3_prefix or conventions.generate_stack_name(config['Parameters'])
 
     try:
         s3_uploader = S3Uploader(
             client,
             args.s3_bucket,
-            session.get_scoped_config()['region'],
-            conventions.generate_name(config['Parameters']),
+            aws.get_region(session),
+            s3_prefix,
             args.kms_key_id,
             False
         )
@@ -64,7 +75,10 @@ def package_template(session, args):
         exported_template = template.export()
         exported_template_yaml = yaml_dump(exported_template)
     except exceptions.ExportFailedError as ex:
-        logging.error(ex)
+        if template_has_resources_to_upload_to_s3(template) and not args.s3_bucket:
+            logging.error('The template contains resources to upload, please provide an S3 Bucket (--s3-bucket).')
+        else:
+            logging.error(ex)
         sys.exit(1)
 
     logging.info(exported_template_yaml)
@@ -72,12 +86,28 @@ def package_template(session, args):
     return exported_template_yaml
 
 
-def deploy_template(session, args, packaged_yaml):
+def template_has_resources_to_upload_to_s3(template):
+    """
+    This function uses the aws cli provided class attribute 'Template.resources_to_export'
+    that contains a static list of resource types
+    to check if any of the resources in the template need to be uploaded to S3
+    Reference: https://github.com/aws/aws-cli/blob/develop/awscli/customizations/cloudformation/artifact_exporter
+    """
 
-    print('Deploying...')
+    if "Resources" in template.template_dict:
+        for _, resource in template.template_dict["Resources"].items():
+            resource_type = resource.get("Type", None)
+            for exporter_class in template.resources_to_export:
+                if exporter_class.RESOURCE_TYPE == resource_type:
+                    return True
+    return False
+
+
+def deploy_template(session, config, packaged_yaml):
+
+    print('\nDeploying...')
     client = session.create_client('cloudformation')
-    config = utils.get_json(args.config)
-    stack_name = conventions.generate_name(config['Parameters'])
+    stack_name = conventions.generate_stack_name(config['Parameters'])
     deployer = Deployer(client)
     tags = conventions.merge_tags(config.get('Tags', {}), config['Parameters'])
 
