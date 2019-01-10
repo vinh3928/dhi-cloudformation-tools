@@ -74,6 +74,7 @@ Resources:
               - logs:PutLogEvents
               Resource: "*"
 
+
 Outputs:
   Lambda:
     Description: Lambda

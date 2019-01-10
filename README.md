@@ -2,10 +2,12 @@
 
 CLI tools for CloudFormation
 
+[![asciicast](https://asciinema.org/a/8zk0FU2lZPOUVplyEA5oOiFIE.svg)](https://asciinema.org/a/8zk0FU2lZPOUVplyEA5oOiFIE)
+
 ## Installation
 ```sh
 pip3 install --upgrade git+https://github.com/DiceHoldingsInc/dhi-cloudformation-tools.git
-pip3 install --upgrade git+https://github.com/DiceHoldingsInc/dhi-cloudformation-tools.git@1.0.0
+pip3 install --upgrade git+https://github.com/DiceHoldingsInc/dhi-cloudformation-tools.git@<version>
 ```
 
 ## Usage
@@ -14,13 +16,11 @@ cfn --help
 cfn --version
 ```
 
-### Multi Action Subcommands
-
-Recommended for manual systems.
+### Commands
 
 #### Validate
 
-Validates the specified AWS CloudFormation template.
+Validates the specified AWS CloudFormation template.  *Note:* This only validates the top leverl template, not nested templates.
 
 ```sh
 cfn validate --help
@@ -67,10 +67,6 @@ cfn dpl -t <main.yml> -c <config.json> -b <some-bucket>
 * `--output-template-file` - The path to the file where the command writes the output AWS CloudFormation template.
 * `--approve` - Approve command execution and bypass manual confirmation.
 
-### Single Subcommands
-
-Recommended for automated systems.
-
 #### Deploy only
 
 Deploys the specified AWS CloudFormation packaged template by creating and then executing a change set.
@@ -82,8 +78,49 @@ cfn dplo -k <packaged.yml> -c <config.json> -a
 ```
 
 * `--packaged` - The path where your AWS CloudFormation packaged template is located.
-* `--config` -The path where your AWS CloudFormation template configuration is located.
+* `--config` - The path where your AWS CloudFormation template configuration is located.
 * `--approve` - Approve command execution and bypass manual confirmation.
+
+#### Delete
+
+Deletes the specified AWS CloudFomration stack.  The stack can be specified using stack-name or by providing a config which is used to derive the stack-name using conventions.
+
+```sh
+cfn delete --help
+cfn delete --stack-name <some-stack>
+cfn delete --config <config.json>
+```
+* `--config` - The path where your AWS CloudFormation template configuration is located.
+* `--stack-name` - The stack name (used instead of config)
+
+
+#### Describe
+
+Displays details of an AWS CloudFormation stack including parameters, resources, and outputs.
+
+```sh
+cfn describe --help
+cfn describe --config <config.json>
+```
+
+* `--config` - The path where your AWS CloudFormation template configuration is located.
+* `--stack-name` - The stack name (used instead of config)
+* `--sections` - Which stack sections to display. Accepts one or more of the following: outputs, parameters, status, all (default: all)
+
+
+#### Events
+
+Displays the most recent events for an AWS CloudFormation stack
+
+```sh
+cfn events --help
+cfn events --config <config.json>
+```
+
+* `--config` - The path where your AWS CloudFormation template configuration is located.
+* `--stack-name` - The stack name (used instead of config)
+* `--filter-minutes` - The humber of minutes of events to retrieve
+
 
 #### AWS Profile
 ```sh
@@ -193,7 +230,7 @@ The computed elements used to simplify this tool's interface also follow the sam
 
 ## Examples
 
-- [Lambda](examples)
+- [Lambda](examples): You can use this as an example for testing changes to the cfn cli.
 
 ## Development
 
@@ -227,7 +264,6 @@ python3 setup.py test
 - generate config.json skeleton base on main.yml
 - generate makrdown docs with params/resources/outputs
 - add clean command --config
-- output, resources and events
 - instructions to spin multiple stacks of the same template
 - awssaml logging, maybe provide example alias to combine with cfn
 - termination protection, see if this is helpful

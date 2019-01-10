@@ -1,30 +1,19 @@
 from ..utils import aws
 from ..services.cloudformation import validate_template, get_template, get_config
+from . import options
 
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         'validate',
         aliases=['val'],
+        parents=[
+            options.common(),
+            options.template_config()
+        ],
         help='Validates the specified AWS CloudFormation template.'
     )
-    parser.add_argument(
-        '--profile',
-        '-p',
-        help='aws profile'
-    )
-    parser.add_argument(
-        '--template',
-        '-t',
-        help='The path where your AWS CloudFormation template is located. (default: main.yml)',
-        default='main.yml'
-    )
-    parser.add_argument(
-        '--config',
-        '-c',
-        help='The path where your AWS CloudFormation template configuration is located. (default: config.json)',
-        default='config.json'
-    )
+
     parser.set_defaults(subcommand=main)
 
 

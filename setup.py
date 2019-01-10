@@ -38,7 +38,11 @@ setup(
     packages=find_packages(exclude=['code', 'infrastructure', 'tests']),
     install_requires=[
         'awscli >= 1.16',
-        'botocore >= 1.12'
+        'botocore >= 1.12',
+        'PTable',
+        'colorama<=0.3.9,>=0.2.5',
+        'termcolor',
+        'coloredlogs'
     ],
     python_requires='>=3',
     extras_require={

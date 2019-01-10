@@ -1,17 +1,17 @@
 from ..utils import aws, utils, conventions
 from ..services.cloudformation import deploy_template, get_config
+from . import options
 
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser(
         'deploy-only',
         aliases=['dplo'],
+        parents=[
+            options.common(),
+            options.approve()
+        ],
         help='Deploys the specified AWS CloudFormation template by creating and then executing a change set.'
-    )
-    parser.add_argument(
-        '--profile',
-        '-p',
-        help='aws profile'
     )
     parser.add_argument(
         '--packaged',
@@ -25,25 +25,14 @@ def add_subparser(subparsers):
         help='The path where your AWS CloudFormation template configuration is located. (default: config.json)',
         default='config.json'
     )
-    parser.add_argument(
-        '--approve',
-        '-a',
-        action='store_true',
-        help='Approve command execution and bypass manual confirmation',
-    )
     parser.set_defaults(subcommand=main)
 
 
 def main(args):
-
     session = aws.get_session(args.profile)
-
     aws.display_session_info(session)
-
     config = get_config(args.config)
-
     conventions.display_generated_values(config)
-
     packaged_yaml = utils.read_content(args.packaged)
 
     if not args.approve:

@@ -2,6 +2,9 @@
 
 Example Lambda infrastructure.
 
+You can use this as an example for testing changes to the cfn cli.
+
+
 Requires the full cycle to be deployed, Validate > Package > Deploy.
 
 ## Run
